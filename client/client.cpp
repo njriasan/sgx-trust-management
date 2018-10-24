@@ -22,18 +22,18 @@
 #include <unistd.h>
 
 
-const char *g_secret1 = "This is my first secret";
-const char *g_secret2 = "This is my second and longer secret";
+const char *g_secret;
 
 int main(int argc, char* argv[])
 {
 
-    if (argc < 2) {
-        printf("ERROR: Need IP address as argument\n");
+    if (argc < 3) {
+        printf("ERROR: Need IP address and name as argument\n");
         return 1;
     }
     const char* truce_server_address = argv[1];
-    const char* agent_address = argv[2];
+    g_secret = argv[2]; /* The user's name which will be printed. */
+    const char* agent_address = argv[3];
 
     if (NULL == agent_address) {
         agent_address = truce_server_address;
@@ -46,8 +46,6 @@ int main(int argc, char* argv[])
     sgx_measurement_t expected_mrsigner = {{0}}; // Should be the real value
     uint8_t *encrypted_secret1 = NULL;
     uint32_t encrypted_secret1_size = 0;
-    uint8_t *encrypted_secret2 = NULL;
-    uint32_t encrypted_secret2_size = 0;
     sgx_quote_t quote = {0};
     int sockfd = -1;
 
@@ -103,24 +101,12 @@ int main(int argc, char* argv[])
     // Encrypting secrets using Enclave's RSA public key.
     if (!truce_client_encrypt_secret(
             t_rec,
-            (uint8_t *) g_secret1,
-            strlen(g_secret1) + 1,
+            (uint8_t *) g_secret,
+            strlen(g_secret) + 1,
             encrypted_secret1,
             encrypted_secret1_size)) {
 
         printf("ERROR: failed to encrypt secret 1\n");
-        goto cleanup;
-
-    }
-
-    if (!truce_client_encrypt_secret(
-            t_rec,
-            (uint8_t *) g_secret2,
-            strlen(g_secret2) + 1,
-            encrypted_secret2,
-            encrypted_secret2_size)) {
-
-        printf("ERROR: failed to encrypt secret 2\n");
         goto cleanup;
 
     }
@@ -136,16 +122,6 @@ int main(int argc, char* argv[])
         goto cleanup;
     }
     
-    // send encrypted secret 2
-    if (!write_all(sockfd, (uint8_t *) &encrypted_secret2_size, 4)) {
-        printf("ERROR: failed to send encrypted_secret2_size\n");
-        goto cleanup;
-    }
-    
-    if (!write_all(sockfd, encrypted_secret2, encrypted_secret2_size)) {
-        printf("ERROR: failed to send %u bytes of encrypted_secret2\n", encrypted_secret2_size);
-        goto cleanup;
-    }
 
 cleanup:
 
@@ -155,10 +131,6 @@ cleanup:
 
     if (encrypted_secret1 != NULL) {
         free(encrypted_secret1);
-    }
-
-    if (encrypted_secret2 != NULL) {
-        free(encrypted_secret2);
     }
 
     return 0;
