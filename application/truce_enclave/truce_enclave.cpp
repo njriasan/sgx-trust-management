@@ -61,7 +61,15 @@ void enclave_debug_print(const char *str) {
 truce_secret_t *Secret_head = NULL;
 truce_secret_t *Secret_tail = NULL;
 
-
+void print_hello_world(unsigned char *buf, unsigned len) 
+{
+    char contents[len + 1];
+    memcpy (contents, buf, len);
+    contents[len] = 0;
+    ocall_print_string("Hello ");
+    ocall_print_string(contents);
+    ocall_print_string(", welcome to the world!\n");
+}
 
 void print_buffer(uint8_t* buf, int len)
 {
@@ -524,13 +532,14 @@ sgx_status_t ECALL_add_secret(
     int num = RSA_private_decrypt(secret_buf_size, secret_buf, ptext,  g_rsa, RSA_PKCS1_PADDING);
 
     ocall_print_string("Enclave: got secret\n");
-    //print_buffer(ptext, num);
 
     truce_secret_t *ptr = (truce_secret_t*)malloc(sizeof(truce_secret_t));
     ptr->secret = (unsigned char *) malloc (num);
     memcpy(ptr->secret, ptext, num);
     ptr->secret_len = num;
     ptr->next = NULL;
+
+    print_hello_world (ptr->secret, ptr->secret_len);
 
     if (NULL == Secret_head) {
         Secret_head = ptr;
