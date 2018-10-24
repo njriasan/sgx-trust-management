@@ -20,19 +20,43 @@
 #include "truce_client.h"
 #include <string.h>
 #include <unistd.h>
-
+#include <iostream>
+#include <fstream>
 
 const char *g_secret;
+bool is_known;
+const char *userfile = "known_users.txt";
+
+bool known_user (const char* name) {
+	std::string line;
+	std::ifstream file;
+	file.exceptions(std::ifstream::failbit|std::ifstream::badbit);
+	file.open (userfile);
+	while (true) {
+		try {
+			std::getline (file, line);
+			if (line.compare (name) == 0) {
+				file.close ();
+				break;
+			}
+		} catch (...) {
+			file.close ();
+			return false;
+		}
+	}
+	return true;
+}
+
 
 int main(int argc, char* argv[])
 {
-
     if (argc < 3) {
         printf("ERROR: Need IP address and name as argument\n");
         return 1;
     }
     const char* truce_server_address = argv[1];
     g_secret = argv[2]; /* The user's name which will be printed. */
+    is_known = known_user (g_secret);
     const char* agent_address = argv[3];
 
     if (NULL == agent_address) {
@@ -42,7 +66,10 @@ int main(int argc, char* argv[])
     int tmp_int;
     truce_id_t t_id = {{0}};
     truce_record_t t_rec;
-    sgx_measurement_t expected_mrenclave = {{0}}; // Should be the real value
+    sgx_measurement_t expected_mrenclave ={{0}};
+    if (is_known) {
+	   expected_mrenclave = {{0xa0, 0xad, 0x7d, 0xa5, 0x1, 0x69, 0xc6, 0x59, 0x15, 0x2, 0x31, 0x3, 0xd4, 0x61, 0x2a, 0x4d, 0xf7, 0x74, 0x2, 0x7e, 0x58, 0xe1, 0x15, 0xed, 0x16, 0x4b, 0xe6, 0x8f, 0xdf, 0xd6, 0xf2, 0xea}}; // Should be the real value
+    }
     sgx_measurement_t expected_mrsigner = {{0}}; // Should be the real value
     uint8_t *encrypted_secret1 = NULL;
     uint32_t encrypted_secret1_size = 0;
@@ -84,12 +111,17 @@ int main(int argc, char* argv[])
         printf("ERROR: failed to extract quote from record\n");
         goto cleanup;
     }
+
+/*
+ *  Hard coded print statement to determine hash of enclave 
+    printf("{");
     for (unsigned i = 0; i < SGX_HASH_SIZE; i++) {
-    	printf ("%x", quote.report_body.mr_enclave.m[i]);
+    	printf ("0x%x, ", quote.report_body.mr_enclave.m[i]);
     }
-    printf ("\n");
+    printf ("}\n");
+*/
     // TODO: should be calculated from a given SO file.
-    memcpy((void *) &expected_mrenclave, (void *) &quote.report_body.mr_enclave, sizeof(sgx_measurement_t));
+    //memcpy((void *) &expected_mrenclave, (void *) &quote.report_body.mr_enclave, sizeof(sgx_measurement_t));
     memcpy((void *) &expected_mrsigner, (void *) &quote.report_body.mr_signer, sizeof(sgx_measurement_t));
 
     if (!truce_client_verify_enclave_record(
