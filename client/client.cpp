@@ -84,6 +84,10 @@ int main(int argc, char* argv[])
         printf("ERROR: failed to extract quote from record\n");
         goto cleanup;
     }
+    for (unsigned i = 0; i < SGX_HASH_SIZE; i++) {
+    	printf ("%x", quote.report_body.mr_enclave.m[i]);
+    }
+    printf ("\n");
     // TODO: should be calculated from a given SO file.
     memcpy((void *) &expected_mrenclave, (void *) &quote.report_body.mr_enclave, sizeof(sgx_measurement_t));
     memcpy((void *) &expected_mrsigner, (void *) &quote.report_body.mr_signer, sizeof(sgx_measurement_t));
