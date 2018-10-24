@@ -90,7 +90,7 @@ else
 endif
 
 App_Cpp_Flags := $(App_C_Flags) -std=c++11
-App_Link_Flags := $(SGX_COMMON_CFLAGS) -L$(SGX_LIBRARY_PATH) -L$(SSL_SGX)/lib64/release -l$(Urts_Library_Name) -L. -L../aux_lib -laux_lib -lcrypto -lpthread -lsgx_usgxssl -Wl,-rpath=$(CURDIR)
+App_Link_Flags := $(SGX_COMMON_CFLAGS) -L$(SGX_LIBRARY_PATH) -L$(SSL_SGX)/lib64 -l$(Urts_Library_Name) -L. -L../aux_lib -laux_lib -lcrypto -lpthread -lsgx_usgxssl -Wl,-rpath=$(CURDIR)
 
 ifneq ($(SGX_MODE), HW)
 	App_Link_Flags += -lsgx_uae_service_sim
@@ -128,7 +128,7 @@ Enclave_Cpp_Flags := $(Enclave_C_Flags) -std=c++03 -nostdinc++
 #       Use `--start-group' and `--end-group' to link these libraries.
 # Do NOT move the libraries linked with `--start-group' and `--end-group' within `--whole-archive' and `--no-whole-archive' options.
 # Otherwise, you may get some undesirable errors.
-Enclave_Link_Flags := $(SGX_COMMON_CFLAGS) -Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L$(SGX_LIBRARY_PATH) -L$(SSL_SGX)/lib64/release \
+Enclave_Link_Flags := $(SGX_COMMON_CFLAGS) -Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L$(SGX_LIBRARY_PATH) -L$(SSL_SGX)/lib64 \
 	-Wl,--whole-archive -l$(Trts_Library_Name) -Wl,--no-whole-archive \
         -Wl,--whole-archive -lsgx_tsgxssl -Wl,--no-whole-archive \
 	-Wl,--start-group -lsgx_tstdc -lsgx_tstdcxx -l$(Crypto_Library_Name) -l$(Service_Library_Name) -lsgx_tsgxssl_crypto -Wl,--end-group \
