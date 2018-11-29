@@ -1,4 +1,4 @@
-LD_LIBRARY_PATH=~/nick-sgx-trust-management/client
+LD_LIBRARY_PATH=~/sgx-trust/client
 echo -e "\n\n./client 127.0.0.1 Nicholas" && ./client 127.0.0.1 Nicholas
 echo -e "\n\n./client 127.0.0.1 Jack" && ./client 127.0.0.1 Jack
 echo -e "\n\n./client 127.0.0.1 Nick" && ./client 127.0.0.1 Nick
