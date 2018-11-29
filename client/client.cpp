@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
     truce_record_t t_rec;
     sgx_measurement_t expected_mrenclave ={{0}};
     if (is_known) {
-	   expected_mrenclave = {{0xa0, 0xad, 0x7d, 0xa5, 0x1, 0x69, 0xc6, 0x59, 0x15, 0x2, 0x31, 0x3, 0xd4, 0x61, 0x2a, 0x4d, 0xf7, 0x74, 0x2, 0x7e, 0x58, 0xe1, 0x15, 0xed, 0x16, 0x4b, 0xe6, 0x8f, 0xdf, 0xd6, 0xf2, 0xea}}; // Should be the real value
+	   expected_mrenclave = {{0x47, 0x35, 0xa4, 0xfb, 0x42, 0x93, 0x11, 0x22, 0xe4, 0xd8, 0xc5, 0x16, 0xb2, 0x4b, 0xbb, 0x3, 0xab, 0xc0, 0x6d, 0xdc, 0x5f, 0xf5, 0x79, 0x63, 0x46, 0x61, 0xde, 0xe1, 0x46, 0xa7, 0x8a, 0xc9}}; // Should be the real value
     }
     sgx_measurement_t expected_mrsigner = {{0}}; // Should be the real value
     uint8_t *encrypted_secret1 = NULL;
@@ -112,14 +112,14 @@ int main(int argc, char* argv[])
         goto cleanup;
     }
 
-/*
- *  Hard coded print statement to determine hash of enclave 
+
+    // Hard coded print statement to determine hash of enclave 
     printf("{");
     for (unsigned i = 0; i < SGX_HASH_SIZE; i++) {
     	printf ("0x%x, ", quote.report_body.mr_enclave.m[i]);
     }
     printf ("}\n");
-*/
+
     // TODO: should be calculated from a given SO file.
     //memcpy((void *) &expected_mrenclave, (void *) &quote.report_body.mr_enclave, sizeof(sgx_measurement_t));
     memcpy((void *) &expected_mrsigner, (void *) &quote.report_body.mr_signer, sizeof(sgx_measurement_t));

@@ -1,4 +1,4 @@
-FROM ubuntu
+FROM tozd/sgx:ubuntu-bionic
 MAINTAINER njriasanovsky@berkeley.edu
 
 RUN apt-get update
@@ -15,25 +15,31 @@ RUN apt-get install -y libcurl4-openssl-dev
 
 RUN apt-get install -y libprotoc10
 
-add application ~/sgx-trust/application
+RUN mkdir -p ~
 
-add aux_lib ~/sgx-trust/aux_lib
+add application /sgx-trust/application
 
-add client ~/sgx-trust/client
+add aux_lib /sgx-trust/aux_lib
 
-add defs.h ~/sgx-trust/defs.h
+add client /sgx-trust/client
 
-add IAS_report.h ~/sgx-trust/IAS_report.h
+add defs.h /sgx-trust/defs.h
 
-add Makefile ~/sgx-trust/Makefile
+add IAS_report.h /sgx-trust/IAS_report.h
 
-add service-provider ~/sgx-trust/service-provider
+add Makefile /sgx-trust/Makefile
 
-add truce_public_keys.h ~/sgx-trust/truce_public_keys.h
+add service-provider /sgx-trust/service-provider
 
-add truce_record.h ~/sgx-trust/truce_record.h
+add truce_public_keys.h /sgx-trust/truce_public_keys.h
 
-add intel /opt/intel
+add truce_record.h /sgx-trust/truce_record.h
+
+add intel/libsgx-enclave-common /opt/intel/libsgx-enclave-common
+
+add intel/sgxssl /opt/intel/sgxssl
+
+add enclave.token /enclave.token
 
 add missing_libraries/libsgx_urts.so /usr/lib/x86_64-linux-gnu/libsgx_urts.so
 
@@ -41,4 +47,4 @@ add missing_libraries/libsgx_enclave_common.so.1 /usr/lib/x86_64-linux-gnu/libsg
 
 add missing_libraries/libsgx_uae_service.so /usr/lib/x86_64-linux-gnu/libsgx_uae_service.so 
 
-RUN cd ~/sgx-trust/ && make clean && make SIMULATE_IAS=1
+RUN cd sgx-trust/ && make clean && make SIMULATE_IAS=1
